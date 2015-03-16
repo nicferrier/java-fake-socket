@@ -51,7 +51,7 @@ Thread sender = new Thread(new Runnable() {
                 InputStream in = sock.getInputStream();
                 System.out.println("socket got inputstream");
                 byte[] buf = new byte[1000];
-                int read = in.read(buf, 0, 4);
+                int read = in.read(buf, 0, 1000);
                 System.out.println("socket read from inputstream");
                 System.out.println("socket read " + read);
             }
