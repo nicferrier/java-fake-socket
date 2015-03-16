@@ -96,7 +96,8 @@ public class FakeSocket {
                 }
                 
                 public int read(byte[] b, int offset, int length) throws IOException {
-                    for (int i = offset; i < offset + length; i++) {
+                    int len = (length > in.size()) ? in.size() : length;
+                    for (int i = offset; i < offset + len; i++) {
                         try {
                             b [i] = in.take ();
                         }
@@ -104,7 +105,7 @@ public class FakeSocket {
                             throw new IOException("interrupted");
                         }
                     }
-                    return length;
+                    return len;
                 }
             };
         }
@@ -305,7 +306,10 @@ public class FakeSocket {
                         InputStream in = sock.getInputStream();
                         System.out.println("socket got inputstream");
                         byte[] buf = new byte[1000];
-                        int read = in.read(buf, 0, 4);
+                        int read = in.read(buf, 0, 1000);
+                        while (read < 1) {
+                            read = in.read(buf, 0, 1000);
+                        }
                         System.out.println("socket read from inputstream");
                         System.out.println("socket read " + read);
                     }
