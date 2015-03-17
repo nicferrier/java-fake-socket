@@ -12,19 +12,31 @@ import java.net.ServerSocket;
 import java.net.InetSocketAddress;
 
 
+/** Obvious tests for the fake socket.
+ */
 class TestFakeSocket {
-    void doit() throws IOException {
+
+    /** Tests for the underyling blocking queue socket implementation.
+     */
+    void testCommunicatingSocket() throws IOException {
         CommunicatingSocket s1 = new CommunicatingSocket();
         CommunicatingSocket s2 = new CommunicatingSocket();
         s1.connectComms(s2);
         OutputStream out = s1.getOutputStream();
         out.write(1);
         InputStream in = s2.getInputStream();
+        int read = in.read();
+        assert(read == 1);
     }
 
-    void testSocks() throws IOException {
+    /** Socket based acceptance test.
+     *
+     * Changes the local socket implementation and then starts a
+     * server and a client.
+     */
+    void testFakeSocks() throws IOException {
         final Backplane backplane = new Backplane();
-        boolean doTest = true;
+        boolean doTest = true; // turn this off and it's a test of tcp sockets
         if (doTest) {
             ServerSocket.setSocketFactory(new SocketImplFactory() {
                     public SocketImpl createSocketImpl() {
@@ -69,9 +81,20 @@ class TestFakeSocket {
                         InputStream in = sock.getInputStream();
                         System.out.println("socket got inputstream");
                         byte[] buf = new byte[1000];
-                        int read = in.read(buf, 0, 1000);
+                        int red = in.read(buf, 0, 1000);
+                        int read = red;
+                        while (red > 0) {
+                            System.out.printf("read %s red %s data %s\n",
+                                              read,
+                                              red,
+                                              new String(buf, 0, read, "UTF-8"));
+                            Thread.sleep(1000);
+                            red = in.read(buf, read, 1000 - read);
+                            read += red;
+                        }
                         System.out.println("socket read from inputstream");
-                        System.out.println("socket read " + read);
+                        System.out.printf("socket read %s red %s\n", read, red);
+                        System.out.printf("socket read %s\n", new String(buf, 0, read, "UTF-8"));
                     }
                     catch (InterruptedException e) {
                         e.printStackTrace();
@@ -87,7 +110,8 @@ class TestFakeSocket {
     }
     
     public static void main (String[] argv) throws IOException {
-        //new FakeSocket().doit();
-        new TestFakeSocket().testSocks();
+        TestFakeSocket t = new TestFakeSocket();
+        t.testCommunicatingSocket();
+        t.testFakeSocks();
     }
 }

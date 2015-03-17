@@ -58,6 +58,7 @@ class CommunicatingSocket {
             }
                 
             public void write (byte[] b, int offset, int length) throws IOException {
+                // System.out.println("CS write put " + new String(b, offset, length, "UTF-8"));
                 for (int i=offset; i < offset + length; i++) {
                     try {
                         out.put (b[i]);
@@ -83,13 +84,13 @@ class CommunicatingSocket {
                 
             public int read(byte[] b, int offset, int length) throws IOException {
                 try {
-                    while (in.size() == 0) {
-                        b[offset] = in.take();
-                    }
-                    int len = (length > in.size()) ? in.size() : length;
-                    for (int i = ++offset; i < offset + len - 1; i++) {
+                    // System.out.printf("CS read has %s\n", in.size());
+                    b[offset] = in.take();
+                    int len = (length > in.size()) ? 1+in.size() : length;
+                    for (int i = ++offset; i < offset + len-1; i++) {
                         b [i] = in.take ();
                     }
+                    // System.out.printf("CS read returning %s\n", len);
                     return len;
                 }
                 catch (InterruptedException e) {
