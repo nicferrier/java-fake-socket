@@ -96,6 +96,7 @@ public class FakeSocketImpl extends SocketImpl {
     }
 
     protected void close() throws IOException {
+        this.thisSock.close();
     }
 
     protected void sendUrgentData (int data) throws IOException {

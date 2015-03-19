@@ -82,15 +82,14 @@ class TestFakeSocket {
                         System.out.println("socket got inputstream");
                         byte[] buf = new byte[1000];
                         int red = in.read(buf, 0, 1000);
-                        int read = red;
+                        int read = 0;
                         while (red > 0) {
+                            read += red;
                             System.out.printf("read %s red %s data %s\n",
                                               read,
                                               red,
                                               new String(buf, 0, read, "UTF-8"));
-                            Thread.sleep(1000);
                             red = in.read(buf, read, 1000 - read);
-                            read += red;
                         }
                         System.out.println("socket read from inputstream");
                         System.out.printf("socket read %s red %s\n", read, red);
